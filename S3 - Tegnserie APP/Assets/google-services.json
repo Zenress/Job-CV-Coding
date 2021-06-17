@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "332841917899",
+    "project_id": "tegneserieprojekt",
+    "storage_bucket": "tegneserieprojekt.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:332841917899:android:e15426a2e0ba8e58fb6a4e",
+        "android_client_info": {
+          "package_name": "shano.ComicApp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "332841917899-7vcfpq01t9ljl2lpfq4tvutu5c4oujdd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfsahTgfy-K4JCeVXGVvc_bnJckSBcPdQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "332841917899-7vcfpq01t9ljl2lpfq4tvutu5c4oujdd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
