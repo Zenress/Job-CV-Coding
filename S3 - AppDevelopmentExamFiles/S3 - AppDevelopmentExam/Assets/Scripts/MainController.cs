@@ -6,17 +6,25 @@ using TMPro;
 using Firebase.Firestore;
 using Firebase.Extensions;
 using Firebase.Auth;
+using UnityEngine.SceneManagement;
 
 public class MainController : MonoBehaviour
 {
-    //Needed for swipe menues
+    //Needed for swipe right Menu
     AndroidControls aControls;
     SwipeMenu swipeRightControls;
-    
-    
-    //Needed for GetBookList
-    List<TileObject> listOfHardware = new List<TileObject>();
-    bool getHardwareDone = false;
+
+    //Needed for CrudBtn
+    CRUDBtnScript crudBtn1;
+    CRUDBtnScript crudBtn2;
+    SwipeMenuUp swipeUpControls;
+    bool menuOpen;
+
+    //Needed for CreateNewBtn
+    SwipeMenuUpBtnScript swipeUpBtn;
+
+    //Needed for saveUserProfile
+    SwipeMenuRightBtnScript swipeRightBtn;
 
     //Needed for instatiation
     TileInstantiation tileScript;
@@ -26,36 +34,54 @@ public class MainController : MonoBehaviour
     List<GameObject> tileList = new List<GameObject>();
     bool hasBeenCalled = false;
 
-    //Needed for controlling login
-    LoginController _login;
+    //Used for holding the currently signed in users email
+    string userEmail = "";
     private void Awake()
     {
-        db = FirebaseFirestore.DefaultInstance;
-        GetBookList();
+        //For Tileinstantiation
+        tileScript = GetComponent<TileInstantiation>();        
+        //For SwipeRightMenu
         aControls = GameObject.Find("EventSystem").GetComponent<AndroidControls>();
         swipeRightControls = GameObject.FindGameObjectWithTag("MenuController").GetComponent<SwipeMenu>();
-        _login = GameObject.Find("LoginController").GetComponent<LoginController>();
+        swipeRightBtn = GameObject.Find("Buttons(Empty)").GetComponent<SwipeMenuRightBtnScript>();
+        userEmail = PlayerPrefs.GetString("userEmail");
+        //For SwipeUpMenu
+        crudBtn1 = GameObject.FindGameObjectWithTag("CrudBtn1").GetComponent<CRUDBtnScript>();
+        crudBtn2 = GameObject.FindGameObjectWithTag("CrudBtn2").GetComponent<CRUDBtnScript>();
+        swipeUpControls = GameObject.Find("SwipeMenuUp").GetComponent<SwipeMenuUp>();
+        swipeUpBtn = GameObject.Find("LavNyBtn").GetComponent<SwipeMenuUpBtnScript>();
+
+        db = FirebaseFirestore.DefaultInstance;
     }
 
     void Start()
-    {        
-        tileScript = GetComponent<TileInstantiation>();
+    {
+        //Assigning and running the needed methods to get everything up and running
+        menuOpen = false;
+        tileScript.GetHardwareList();
         AssignUserProfile();
+        swipeRightBtn.saveChangesBtn.onClick.AddListener(SaveUserProfile);
+        crudBtn1.crudBtn.onClick.AddListener(MoveCRUDMenu);
+        crudBtn2.crudBtn.onClick.AddListener(MoveCRUDMenu);
+        swipeUpBtn.createNewBtn.onClick.AddListener(CreateItem);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (getHardwareDone == true && hasBeenCalled == false)
+        //Making sure that we have the hardwarelist before initializing a tile
+        if (tileScript.getHardwareDone == true && hasBeenCalled == false)
         {
             InstantiateTiles();
             hasBeenCalled = true;
         }
+        //Checking if the swipe menu is out or not and then acting accordingly
         if (aControls.swipedRight == true && aControls.closeMenu == false)
         {
             swipeRightControls.menuParent.transform.localPosition = new Vector3(0f, 0f, 0f);
             aControls.swipedRight = false;
         }
+        //Checking if the swipe menu is out or not and then acting accordingly
         if (aControls.swipedLeft == true && aControls.closeMenu == true)
         {
             swipeRightControls.menuParent.transform.localPosition = new Vector3(-1178f, 0f, 0f);
@@ -64,84 +90,66 @@ public class MainController : MonoBehaviour
         }
     }
 
-    void GetBookList()
-    {
-        Query hardwareList = db.Collection("HardwareList");
-        hardwareList.GetSnapshotAsync().ContinueWithOnMainThread(task =>
-        {
-            QuerySnapshot getHardwareList = task.Result;
-            foreach (DocumentSnapshot documentSnapshot in getHardwareList.Documents)
+    //Method for creating an item with the input fields in the swipe up menu
+    void CreateItem()
+    {        
+        DocumentReference docRef = db.Collection("HardwareList").Document(swipeUpControls.navn.text);
+        Dictionary<string, object> hardware = new Dictionary<string, object>
             {
-                TileObject newTile = new TileObject();
-                Debug.Log(string.Format("Document data for {0} document:", documentSnapshot.Id));
-                Dictionary<string, object> books = documentSnapshot.ToDictionary();
-                foreach (KeyValuePair<string,object> pair in books)
-                {
-                    Debug.Log($"{pair.Key}  {pair.Value}");
-                    switch (pair.Key)
-                    {
-                        case "type":
-                            newTile.Type = (string)pair.Value;
-                            break;
-
-                        case "name":
-                            newTile.Name = (string)pair.Value;
-                            break;
-
-                        case "status":
-                            newTile.Status = (bool)pair.Value;
-                            break; 
-
-                        case "dato":
-                            newTile.DateOfChange = (Timestamp)pair.Value;
-                            break;
-
-                        case "id":
-                            newTile.Id = (string)pair.Value;
-                            break;
-                    }
-                }
-                listOfHardware.Add(newTile);
-                foreach (TileObject item in listOfHardware)
-                {
-                    Debug.Log(item.Id);
-                    Debug.Log(item.Type);
-                    Debug.Log(item.Name);
-                    Debug.Log(item.Status);
-                    Debug.Log(item.DateOfChange);
-                }
-                Debug.Log(listOfHardware.Count);
-                getHardwareDone = true;
-            }
+                    { "navn", swipeUpControls.navn.text},
+                    { "type", swipeUpControls.type.text},
+                    { "udlånt", swipeUpControls.udlånt.isOn},
+                    {   "dato", Timestamp.GetCurrentTimestamp() },
+            };
+        docRef.SetAsync(hardware).ContinueWithOnMainThread(task => {
+            Debug.Log("Added data to the LA document in the HardwareList collection.");
         });
+        SceneManager.LoadScene("MainContentScreen");
     }
 
+    #region CRUDMenu
+    //Moving the swipe up menu
+    void MoveCRUDMenu()
+    {
+        if (menuOpen == false)
+        {
+            swipeUpControls.menuParent.transform.localPosition = new Vector3(-1178f, 2576f, 0f);
+            menuOpen = true;
+        }
+        else if (menuOpen == true)
+        {
+            swipeUpControls.menuParent.transform.localPosition = new Vector3(-1178f, 0f, 0f);
+            menuOpen = false;
+        }
+        
+    }
+    #endregion
+    #region Tile instantiation
+    //The method for instantiating the tile prefab, and making it fit accordinlgy to the screen size
     void InstantiateTiles()
     {
-        for (int i = 0; i < listOfHardware.Count; i++)
+        for (int i = 0; i < tileScript.listOfHardware.Count; i++)
         {
             tileScript.instantiatedTile = Instantiate(tileScript.tilePrefab, new Vector3(0,0,0), Quaternion.Euler(0,0,90));
             tileScript.instantiatedTile.transform.SetParent(contentEmpty.transform);
             tileScript.instantiatedTile.transform.localScale = new Vector3(1,1,1);
-            tileScript.instantiatedTile.transform.Find("HardwareTileName").GetComponent<TMP_Text>().text = listOfHardware[i].Name;
-            tileScript.instantiatedTile.transform.Find("HardwareTileType").GetComponent<TMP_Text>().text = "Type: " + listOfHardware[i].Type;
-            tileScript.instantiatedTile.transform.Find("HardwareTileStatus").GetComponent<TMP_Text>().text = "Status: " + listOfHardware[i].Status;
-            tileScript.instantiatedTile.transform.Find("HardwareTilesDateOfChange").GetComponent<TMP_Text>().text = "Dato: " + listOfHardware[i].DateOfChange.ToDateTime();
+            tileScript.instantiatedTile.transform.Find("HardwareTileName").GetComponent<TMP_Text>().text = tileScript.listOfHardware[i].Name;
+            tileScript.instantiatedTile.transform.Find("HardwareTileType").GetComponent<TMP_Text>().text = "Type: " + tileScript.listOfHardware[i].Type;
+            tileScript.instantiatedTile.transform.Find("HardwareTileStatus").GetComponent<TMP_Text>().text = "Udlånt: " + tileScript.listOfHardware[i].Status;
+            tileScript.instantiatedTile.transform.Find("HardwareTilesDateOfChange").GetComponent<TMP_Text>().text = "Dato: " + tileScript.listOfHardware[i].DateOfChange.ToDateTime();
             tileScript.instantiatedTile.SetActive(true);
             tileList.Add(tileScript.instantiatedTile);
             Debug.Log("Instantiated a tile");
         }
     }
-
+    #endregion
+    #region User Profile
+    //Assigning the input fields on the swipe right menu with the information available, as to let the user know what is left and need to be typed
     void AssignUserProfile()
     {
-        /*FirebaseUser user = auth.CurrentUser;
-        if (user != null)
+        if (userEmail != null)
         {
-            string name = user.DisplayName;
-            string email = user.Email;
-            string uid = user.UserId;
-            DocumentReference docRef = db.Collection("Brugere").Document(email);
+            DocumentReference docRef = db.Collection("Brugere").Document(userEmail);
             docRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
             {
                 DocumentSnapshot snapshot = task.Result;
@@ -177,15 +185,17 @@ public class MainController : MonoBehaviour
                     Debug.Log(string.Format("Document {0} does not exist!", snapshot.Id));
                 }
             });
-        }*/
+        }
+
     }
 
+    //For the save button that saves what the user has edited
     void SaveUserProfile()
     {
-        /*DocumentReference docRef = db.Collection("Brugere").Document(email);
+        DocumentReference docRef = db.Collection("Brugere").Document(userEmail);
         Dictionary<string, object> bruger = new Dictionary<string, object>
             {
-                    { "email", email },
+                    { "email", userEmail },
                     { "navn", swipeRightControls.navn.text },
                     { "adresse", swipeRightControls.adresse.text },
                     { "mobilnummer",swipeRightControls.phonenumber.text },
@@ -193,10 +203,12 @@ public class MainController : MonoBehaviour
             };
         docRef.SetAsync(bruger).ContinueWithOnMainThread(task => {
             Debug.Log("Added data to the LA document in the cities collection.");
-        });*/
+        });
     }
+    #endregion
 }
 
+//TileObject for initializing the tiles
 public class TileObject
 {
     private string id;

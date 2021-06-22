@@ -5,6 +5,7 @@ using TMPro;
 
 public class SwipeMenu : MonoBehaviour
 {
+    //Making the neccesary variables so that we can acces the right things in the maincontroller gameobject
     internal Transform menuParent;
     internal TMP_InputField navn;
     internal TMP_InputField email;

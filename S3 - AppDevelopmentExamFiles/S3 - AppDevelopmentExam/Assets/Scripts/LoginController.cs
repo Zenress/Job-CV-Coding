@@ -21,11 +21,14 @@ public class LoginController : MonoBehaviour
     Button signIn;
     Button signUp;
 
-    public FirebaseAuth auth;
+    //Needed for controlling that everything is running correctly
+    internal FirebaseAuth auth;
     FirebaseFirestore db;
-    bool hasRun = false;
+    internal bool hasRun = false;
+    internal string userEmail;
     private void Awake()
     {
+        //Assigning the default instances for both firebase elements
         auth = FirebaseAuth.DefaultInstance;
         db = FirebaseFirestore.DefaultInstance;
     }
@@ -70,6 +73,8 @@ public class LoginController : MonoBehaviour
                 newUser.DisplayName, newUser.UserId);
             hasRun = true;
         });        
+        PlayerPrefs.SetString("userEmail", email.text);
+        PlayerPrefs.Save();
     }
 
     //The method for signing up
@@ -91,9 +96,9 @@ public class LoginController : MonoBehaviour
             FirebaseUser newUser = task.Result;
             Debug.LogFormat("Firebase user created successfully: {0} ({1})",
                 newUser.DisplayName, newUser.UserId);
-            email.text = "";
-            password.text = "";
+            
         });
+        //Creating a document using the created users email. Thus creating a user profile
         DocumentReference docRef = db.Collection("Brugere").Document(email.text);
         Dictionary<string, object> bruger = new Dictionary<string, object>
         {
@@ -102,5 +107,7 @@ public class LoginController : MonoBehaviour
         docRef.SetAsync(bruger).ContinueWithOnMainThread(task => {
             Debug.Log("Added data to the LA document in the cities collection.");
         });
+        email.text = "";
+        password.text = "";
     }
 }
