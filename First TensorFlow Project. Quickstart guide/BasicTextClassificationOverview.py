@@ -5,6 +5,8 @@ import shutil
 import string
 from numpy import vectorize
 import tensorflow as tf
+from tensorflow.python.data.ops.dataset_ops import AUTOTUNE
+from tensorflow.python.keras.layers.pooling import GlobalAveragePooling1D
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 from tensorflow.keras import layers
@@ -72,6 +74,36 @@ def vectorize_text(text, label):
 
 text_batch, label_batch = next(iter(raw_train_ds))
 first_review, first_label = text_batch[0], label_batch[0]
-print("Review", first_review)
-print("Label", raw_train_ds.class_names[first_label])
-print("Vectorized Review", vectorize_text(first_review, first_label))
+
+train_ds = raw_train_ds.map(vectorize_text)
+val_ds = raw_val_ds.map(vectorize_text)
+test_ds = raw_test_ds.map(vectorize_text)
+
+AUTOTUNE = tf.data.experimental.AUTOTUNE
+
+train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE)
+val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
+test_ds = test_ds.cache().prefetch(buffer_size=AUTOTUNE)
+
+embedding_dim = 16
+model = tf.keras.Sequential([
+  layers.Embedding(max_features + 1, embedding_dim),
+  layers.Dropout(0.2),
+  layers.GlobalAveragePooling1D(),
+  layers.Dropout(0.2),
+  layers.Dense(1)])
+
+model.compile(loss=losses.BinaryCrossentropy(from_logits=True),
+              optimizer='adam',
+              metrics=tf.metrics.BinaryAccuracy(threshold=0.0))
+
+epochs = 10
+history = model.fit(
+  train_ds,
+  validation_data=val_ds,
+  epochs=epochs)
+
+loss, accuracy = model.evaluate(test_ds)
+
+print("Loss: ", loss)
+print("Accuracy: ", accuracy)
