@@ -107,3 +107,32 @@ loss, accuracy = model.evaluate(test_ds)
 
 print("Loss: ", loss)
 print("Accuracy: ", accuracy)
+
+history_dict = history.history
+history_dict.keys()
+
+acc = history_dict['binary_accuracy']
+val_acc = history_dict['val_binary_accuracy']
+loss = history_dict['loss']
+val_loss = history_dict['val_loss']
+
+epochs = range(1, len(acc) + 1)
+
+export_model = tf.keras.Sequential([
+  vectorize_layer,
+  model,
+  layers.Activation('sigmoid')
+])
+
+export_model.compile(
+  loss=losses.BinaryCrossentropy(from_logits=False), optimizer="adam", metrics=['accuracy']
+)
+
+loss, accuracy = export_model.evaluate(raw_test_ds)
+examples = [
+  "The movie was great!",
+  "The movie was okay.",
+  "The movie was terrible..."
+]
+
+print(export_model.predict(examples))
