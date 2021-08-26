@@ -1,7 +1,10 @@
+from contextlib import suppress
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 np.set_printoptions(precision=3, suppress=True)
 
@@ -19,7 +22,6 @@ raw_dataset = pd.read_csv(url, names=column_names,
                           sep=' ', skipinitialspace=True)
 
 dataset = raw_dataset.copy()
-print(dataset.tail())
 
 dataset.isna().sum()
 dataset = dataset.dropna()
@@ -36,7 +38,49 @@ test_features = test_dataset.copy()
 
 train_labels = train_features.pop('MPG')
 test_lables = test_features.pop('MPG')
-print(train_dataset.describe().transpose()[['mean','std']])
 
-sns.pairplot(train_dataset[['MPG','Cylinders','Displacement','Weight']], diag_kind='kde')
-plt.show()
+normalizer = preprocessing.Normalization(axis=1)
+normalizer.adapt(np.array(train_features))
+
+#Putting all of the features (data columns) in an array
+horsepower = np.array(train_features['Horsepower'])
+
+#Configuring the normalizer so the values of the input is between 0 and 1
+horsepower_normalizer = preprocessing.Normalization(input_shape=[1,], axis=None)
+horsepower_normalizer.adapt(horsepower)
+
+#Configuring the model layers
+horsepower_model = tf.keras.Sequential([
+  horsepower_normalizer,
+  layers.Dense(units=1)
+])
+
+#Configuring the optimizer and loss function to use
+horsepower_model.compile(
+  optimizer=tf.optimizers.Adam(learning_rate=0.1),
+  loss='mean_absolute_error'
+)
+
+#Training the model to predict MPG based on horsepower
+history = horsepower_model.fit(
+  train_features['Horsepower'], train_labels,
+  epochs=100,
+  #Supresses logging of the execution (No Massive wall of text?)
+  verbose=0,
+  #Calculate the validation results on 20% of the training data
+  validation_split=0.2)
+
+hist = pd.DataFrame(history.history)
+hist['epoch'] = history.epoch
+print(hist.tail())
+
+def plot_loss(history):
+  plt.plot(history.history['loss'], label='loss')
+  plt.plot(history.history['val_loss'], label='val_loss')
+  plt.ylim([0,10])
+  plt.xlabel('Epoch')
+  plt.ylabel('Error [MPG]')
+  plt.legend()
+  plt.grid(True)
+
+plot_loss()
