@@ -37,7 +37,7 @@ train_features = train_dataset.copy()
 test_features = test_dataset.copy()
 
 train_labels = train_features.pop('MPG')
-test_lables = test_features.pop('MPG')
+test_labels = test_features.pop('MPG')
 
 normalizer = preprocessing.Normalization(axis=1)
 normalizer.adapt(np.array(train_features))
@@ -83,4 +83,23 @@ def plot_loss(history):
   plt.legend()
   plt.grid(True)
 
-plot_loss()
+plot_loss(history)
+
+test_results = {}
+
+test_results['horsepower_model'] = horsepower_model.evaluate(
+  test_features['Horsepower'],
+  test_labels, verbose=0)
+
+x = tf.linspace(0.0,250,251)
+y = horsepower_model.predict(x)
+
+def plot_horsepower(x, y):
+  plt.scatter(train_features['Horsepower'], train_labels, label ='Data')
+  plt.plot(x,y,color='k', label='Predictions')
+  plt.xlabel('Horsepower')
+  plt.ylabel('MPG')
+  plt.legend()
+
+plot_horsepower(x,y)
+plt.show()
