@@ -1,4 +1,5 @@
 from contextlib import suppress
+from datetime import time
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -83,7 +84,7 @@ def plot_loss(history):
   plt.legend()
   plt.grid(True)
 
-plot_loss(history)
+
 
 test_results = {}
 
@@ -103,3 +104,28 @@ def plot_horsepower(x, y):
 
 plot_horsepower(x,y)
 plt.show()
+
+linear_model = tf.keras.Sequential([
+  normalizer,
+  layers.Dense(units=1)
+])
+
+linear_model.compile(
+  optimizer=tf.optimizers.Adam(learning_rate=0.1),
+  loss="mean_absolute_error"
+)
+
+
+history = linear_model.fit(
+  train_features, train_labels,
+  epochs=100,
+  # Supress logging
+  verbose=0,
+  validation_split = 0.2)
+
+plot_loss(history)
+plt.show()
+
+test_results['linear_model'] = linear_model.evaluate(
+  test_features,test_labels, verbose=0
+)
