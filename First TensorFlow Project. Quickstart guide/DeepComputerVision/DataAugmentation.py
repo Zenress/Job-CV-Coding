@@ -1,3 +1,5 @@
+
+
 #Switching CPU operation instructions to AVX AVX2
 import os
 from sys import version
@@ -21,6 +23,32 @@ logging.getLogger().setLevel(logging.INFO)
 #Normalize pixel values to be between 0 and 1
 train_images, test_images = train_images / 255.0, test_images / 255.0
 
-#Defining feature columns
-class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
+from keras.preprocessing import image
+from keras.preprocessing.image import ImageDataGenerator
 
+#Creates a data generator object that transforms images
+datagen = ImageDataGenerator(
+  rotation_range=40,
+  width_shift_range=0.2,
+  height_shift_range=0.2,
+  shear_range=0.2,
+  zoom_range=0.2,
+  horizontal_flip=True,
+  fill_mode='nearest'
+)
+
+#Picking an image to transform
+test_img = train_images[14]
+img = image.img_to_array(test_img) #Converting image to numpy array
+img = img.reshape((1,) + img.shape) #Reshaping image
+
+i = 0
+
+for batch in datagen.flow(img, save_prefix='test', save_format='jpeg'):
+  plt.figure(i)
+  plot = plt.imshow(image.img_to_array(batch[0]))
+  i += 1
+  if i > 4:
+    break
+
+plt.show()
