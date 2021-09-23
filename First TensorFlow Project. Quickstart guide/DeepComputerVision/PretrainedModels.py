@@ -1,6 +1,13 @@
 #Switching CPU operation instructions to AVX AVX2
 import os
+from tensorflow.python.ops.array_ops import sequence_mask
+from tensorflow.python.ops.gen_batch_ops import batch
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+#Adding progression logging
+import logging
+logging.getLogger().setLevel(logging.INFO)
+#Standard imports ^
+
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,10 +17,6 @@ keras = tf.keras
 import tensorflow_datasets as tfds
 tfds.disable_progress_bar()
 
-#Adding progression logging
-import logging
-logging.getLogger().setLevel(logging.INFO)
-#Standard imports ^
 #Split the data manually into 80% training, 10% testing and 10% validation
 (raw_train, raw_validation, raw_test), metadata = tfds.load(
 'cats_vs_dogs',
@@ -57,8 +60,36 @@ base_model = tf.keras.applications.MobileNetV2(input_shape=IMG_SHAPE,
                                                include_top=False,
                                                weights='imagenet')
 
-for image, _ in train_batches.take(1):
-  pass
+#Freezing the base
+base_model.trainable = False
 
-feature_batch = base_model(image)
-print(feature_batch.shape)
+global_average_layer = tf.keras.layers.GlobalAveragePooling2D()
+prediction_layer = keras.layers.Dense(1)
+
+model = tf.keras.Sequential([
+  base_model, #The pretrained Convolutional MobileNetV2 model
+  global_average_layer, #Our own Average Pooling layer
+  prediction_layer #Our own Prediction layer
+])
+
+base_learning_rate = 0.0001
+model.compile(optimizer=tf.keras.optimizers.RMSprop(lr=base_learning_rate),
+              loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
+              metrics=['accuracy'])
+
+#Evaluating the new model
+initial_epochs = 3
+validation_steps = 20
+
+loss0,accuracy0 = model.evaluate(validation_batches, steps=validation_steps)
+
+#Now we can train it on our images
+history = model.fit(train_batches,
+                    epochs=initial_epochs,
+                    validation_data=validation_batches)
+
+acc = history.history['accuracy']
+print(acc)
+
+model.save("dogs_vs_cats.h5")
+new_model = tf.keras.models.load_model('dogs_vs_cats.h5')
