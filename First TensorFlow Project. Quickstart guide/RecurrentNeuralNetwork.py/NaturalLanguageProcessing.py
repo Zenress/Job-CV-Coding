@@ -10,28 +10,63 @@ from keras.datasets import imdb
 from keras.preprocessing import sequence
 import tensorflow as tf
 import numpy as np
+import keras
 
+#Assigning the size of the vocabulary, meaning the amount of different words
 VOCAB_SIZE = 88584
 
+#Assigning the maximum length of characters for one review
 MAXLEN = 250
+#How large of a batch we will split into during training
 BATCH_SIZE = 64
 
-(train_data, train_labels),(test_data,test_label) = imdb.load_data(num_words=VOCAB_SIZE)
+#Loading only 88584 words of the IMDB dataset
+(train_data, train_labels),(test_data,test_labels) = imdb.load_data(num_words=VOCAB_SIZE)
 
+#Padding the data so that all of the reviews are 250 characters long. This is done by adding 0's to the start of the reviews
 train_data = sequence.pad_sequences(train_data, MAXLEN) #Preprocessing the data so that each review is 250 characters long
 test_data = sequence.pad_sequences(test_data, MAXLEN) #Preprocessing the data so that each review is 250 characters long
 
+#Loading the model that i saved so i wouldn't have to train it constantlty
+model = tf.keras.models.load_model("languageProcessing.h5")
 
-model = tf.keras.Sequential([
-  tf.keras.layers.Embedding(VOCAB_SIZE, 32),
-  tf.keras.layers.LSTM(32),
-  tf.keras.layers.Dense(1,activation='sigmoid')
-])
+results = model.evaluate(test_data, test_labels)
 
-model.summary()
+#Encoding Function
+word_index = imdb.get_word_index()
 
-model.compile(loss="binary_crossentropy", optimizer="rmsprop", metrics=['acc'])
+def encode_text(text):
+  tokens = keras.preprocessing.text.text_to_word_sequence(text)
+  tokens = [word_index[word] if word in word_index else 0 for word in tokens]
+  return sequence.pad_sequences([tokens], MAXLEN)[0]
 
-history = model.fit(train_data, train_labels, epochs=10, validation_split=0.2)
+text = "that movie was just amazing, so amazing"
+encoded = encode_text(text)
 
-model.save("languageProcessing")
+#Decoding Function
+reverse_word_index = {value: key for (key,value) in word_index.items()}
+
+def decode_integers(integers):
+  PAD = 0
+  text = ""
+  for num in integers:
+    if num != PAD:
+      text += reverse_word_index[num] + " "
+
+  return text[:-1]
+
+print(decode_integers(encoded))
+
+#Prediction Function
+def predict(text):
+  encoded_text = encode_text(text)
+  pred = np.zeros((1,250))
+  pred[0] = encoded_text
+  result = model.predict(pred)
+  print(result[0])
+
+positive_review = "That movie was so awesome! I really loved it and would watch it again because it was amazingly great"
+predict(positive_review)
+
+negative_review = "That movie sucked. I hated it and wouldn't watch it again. Was one of the worst things I've ever watched"
+predict(negative_review)
