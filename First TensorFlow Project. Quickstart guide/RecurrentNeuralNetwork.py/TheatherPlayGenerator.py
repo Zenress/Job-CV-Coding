@@ -1,5 +1,7 @@
 #Switching CPU operation instructions to AVX AVX2
 import os
+
+from tensorflow.python.keras.layers.recurrent import RNN
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 #Adding progression logging
 import logging
@@ -98,7 +100,7 @@ def loss(labels,logits):
 #REGION END: Creating a loss function
 
 #REGION: Compiling the model
-model.compile(optimizer='adan',loss=loss)
+model.compile(optimizer='adam',loss=loss)
 #REGION END: Compiling the model
 
 #REGION: Setting up checkpoints?
@@ -110,3 +112,35 @@ checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt_{epoch}')
 checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
   filepath = checkpoint_prefix,
   save_weights_only=True)
+#REGION END:
+
+#REGION: Training the Model
+#history = model.fit(data,epochs=2,callbacks=[checkpoint_callback])
+#REGION END: Training the Model
+
+model = build_model(VOCAB_SIZE,EMBEDDING_DIM,RNN_UNITS,batch_size=1)
+model.load_weights(tf.train.latest_checkpoint(checkpoint_dir)) #Loading the latest checkpoint
+model.build(tf.TensorShape([1,None])) #Expect 1 input. We don't know the next layers dimensions
+
+
+def generate_text(model,start_string):
+  #Evaluation step (generating text using the learned model)
+  #Number of characters to generate
+  num_generate = 800
+
+  #Converting our start string to number (vectorizing)
+  input_eval = [char2idx[s] for s in start_string]
+  input_eval = tf.expand_dims(input_eval,0)
+
+  #Empty string to store our results
+  text_generated = []
+
+  #Low temperatures results in more predictable text.
+  #Higher temperatures results in more surprising text
+  #Experiment to find the best setting
+  temperatue = 1.0
+
+  #Here batch size == 1
+  model.reset_states()
+  for i in range(num_generate):
+    predictions = model(input_eval)
