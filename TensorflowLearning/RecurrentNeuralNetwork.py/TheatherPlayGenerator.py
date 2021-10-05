@@ -115,7 +115,7 @@ checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
 #REGION END:
 
 #REGION: Training the Model
-#history = model.fit(data,epochs=2,callbacks=[checkpoint_callback])
+history = model.fit(data,epochs=2,callbacks=[checkpoint_callback])
 #REGION END: Training the Model
 
 model = build_model(VOCAB_SIZE,EMBEDDING_DIM,RNN_UNITS,batch_size=1)
