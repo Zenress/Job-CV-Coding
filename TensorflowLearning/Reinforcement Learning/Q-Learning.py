@@ -23,7 +23,7 @@ MAX_STEPS = 100 #Max number of steps allowed for each run of enviroment
 LEARNING_RATE = 0.81 #Learning rate
 GAMMA = 0.96
 
-RENDER = True #If you want to see training set to true
+RENDER = False #If you want to see training set to true
 
 epsilon = 0.9
 

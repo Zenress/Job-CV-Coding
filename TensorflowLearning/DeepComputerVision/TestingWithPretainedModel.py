@@ -27,7 +27,6 @@ with_info=True,
 as_supervised=True,
 )
 
-get_label_name = metadata.features['label'].int2str #Creates a function object that we can use to get labels
 
 IMG_SIZE = 160 #All images will be resized to 160x160
 
@@ -43,6 +42,8 @@ def format_example(image,label):
 train = raw_train.map(format_example)
 validation = raw_validation.map(format_example)
 test = raw_test.map(format_example)
+
+get_label_name = metadata.features['label'].int2str #Creates a function object that we can use to get labels
 
 BATCH_SIZE = 32
 SHUFFLE_BUFFER_SIZE = 1000
@@ -64,7 +65,7 @@ def predict(model, image, num):
     label = lbl
   predicted_class = class_names[label]
 
-  show_image(image, class_names[get_label_name], predicted_class)
+  show_image(image, class_names[label], predicted_class)
 
 
 def show_image(img, label, guess):
