@@ -179,4 +179,9 @@ Model to json
 #Save as JSON
 json_string = model.to_json()
 
-print(json_string)
+"""
+Model.save_weights()
+
+"""
+if os.path.isfile('KerasLearning/models/my_model_weights.h5') is False:
+  model.save_weights('KerasLearning/models/my_model_weights.h5')
