@@ -47,8 +47,8 @@ for X, y in test_dataloader:
 Creating Models
 """
 #Get cpu or gpu device for training
-device = "cuda" if torch.cuda.is_available() else "cpu"
-print("Using {} device".format(device))
+device = "cuda" if torch.cuda.is_available() else "CPU"
+#print("Using {} device".format(device))
 
 #Define Model
 class NeuralNetwork(nn.Module):
@@ -70,10 +70,33 @@ class NeuralNetwork(nn.Module):
 
 model = NeuralNetwork().to(device)
 
+
 #Loading the already trained model
-model.load_state_dict(torch.load("PyTorchLearning/models/modelSave.pth"))
+#model.load_state_dict(torch.load("PyTorchLearning/models/modelSave.pth"))
 
 print(model)
+
+classes = [
+  "T-shirt/top",
+  "Trouser",
+  "Pullover",
+  "Dress",
+  "Coat",
+  "Sandal",
+  "Shirt",
+  "Sneaker",
+  "Bag",
+  "Ankle boot",
+]
+
+model.eval()
+x, y = test_data[0][0], test_data[0][1]
+with torch.no_grad():
+  pred = model(x)
+  predicted, actual = classes[pred[0].argmax(0)], classes[y]
+  print(f'Predicted: "{predicted}", Actual: "{actual}"',)
+
+
 """
 Optimizing the model parameters
 """

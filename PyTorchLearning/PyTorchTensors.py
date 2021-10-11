@@ -1,0 +1,71 @@
+#Switching CPU operation instructions to AVX AVX2
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+#Adding progression logging
+import logging
+logging.getLogger().setLevel(logging.INFO)
+#Standard imports ^
+
+import torch
+import numpy as np
+
+#Directly from data
+data = [[1,2],[3,4]]
+x_data = torch.tensor(data)
+
+#From a NumPy array
+np_array = np.array(data)
+x_np = torch.from_numpy(np_array)
+
+#From another tensor
+x_ones = torch.ones_like(x_data) #Retains the properties of x_data
+print(f"Ones Tensor \n {x_ones} \n")
+
+x_rand = torch.rand_like(x_data, dtype=torch.float) #Overrides the datatype of x_data
+print(f"Random Tensor: \n {x_rand} \n")
+
+#With Random or Constant values:
+shape = (2,3,)
+rand_tensor = torch.rand(shape)
+ones_tensor = torch.ones(shape)
+zeros_tensor = torch.zeros(shape)
+
+print(f"Random Tensor: \n {rand_tensor}")
+print(f"Ones Tensor: \n {ones_tensor}")
+print(f"Zeros Tensor: \n {zeros_tensor}")
+
+#Attributes of a Tensor
+tensor = torch.rand(3,4)
+
+print(f"Shape of Tensor: {tensor.shape}")
+print(f"Datatype of Tensor: {tensor.dtype}")
+print(f"Device tensor is stored on: {tensor.device}")
+
+if torch.cuda.is_available():
+  tensor = tensor.to("cuda")
+
+tensor2 = torch.ones(4,4)
+print("First row: ", tensor2[0])
+print("First column: ", tensor2[:,0])
+print("Last column: ", tensor2[...,-1])
+tensor2[:,1] = 0
+print(tensor2)
+
+#Joining tensors
+t1 = torch.cat([tensor2,tensor2,tensor2], dim=1)
+print(t1)
+
+#Arithmetic operations
+#This computes the matrix multiplication between two tensors. y1, y2, y3 will have the same value
+y1 = tensor2 @ tensor2.T
+y2 = tensor2.matmul(tensor2.T)
+
+y3 = torch.rand_like(tensor2)
+torch.matmul(tensor2,tensor2.T, out=y3)
+
+#This computes the element-wise product. z1, z2, z3 will have the same value
+z1 = tensor2 * tensor2
+z2 = tensor2.mul(tensor2)
+
+z3 = torch.rand_like(tensor2)
+torch.myl(tensor2,tensor2,out=z3)
