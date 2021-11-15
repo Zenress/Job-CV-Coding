@@ -24,4 +24,18 @@ def fibonacci(n):
 
     return FIB_CACHE[n]
 
+def fibonacci2(n):
+  if n in FIB_CACHE:
+    return FIB_CACHE[n]
+
+  #Base case
+  if n == 1 or n == 2:
+    return 1
+  #Recursive case
+  else:
+    FIB_CACHE[n] = fibonacci2(n - 2) + fibonacci2(n - 1)
+    
+    return FIB_CACHE[n]
+
 print(fibonacci(n))
+print(fibonacci2(n))
