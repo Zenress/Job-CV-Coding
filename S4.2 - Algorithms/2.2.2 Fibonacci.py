@@ -21,21 +21,19 @@ def fibonacci(n):
   #Recursive case
   else:
     FIB_CACHE[n] = fibonacci(n - 2) + fibonacci(n - 1)
-
     return FIB_CACHE[n]
 
-def fibonacci2(n):
-  if n in FIB_CACHE:
-    return FIB_CACHE[n]
-
+"""def fibonacci(n):
   #Base case
-  if n == 1 or n == 2:
-    return 1
+  if n <= 2:
+    return n
   #Recursive case
-  else:
-    FIB_CACHE[n] = fibonacci2(n - 2) + fibonacci2(n - 1)
-    
-    return FIB_CACHE[n]
+  else:    
+    return fibonacci(n - 2) + fibonacci(n - 1)"""
 
-print(fibonacci(n))
-print(fibonacci2(n))
+"""print(fibonacci(n))"""
+if n <= 0:
+  print()
+else:
+  for i in range(n):
+    print(fibonacci(i))
