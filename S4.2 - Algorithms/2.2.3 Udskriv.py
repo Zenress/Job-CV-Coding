@@ -14,7 +14,7 @@ def Print_Folders(path, level = 0):
 def Print_Files(path):
   onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
   for x in onlyfiles:
-    print(x)
+    print(x + " Path:  " + path)
 
 def Get_Folders(path):    
   subfolders = [ f.path for f in os.scandir(path) if f.is_dir() ]
