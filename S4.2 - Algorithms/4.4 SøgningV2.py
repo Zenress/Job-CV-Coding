@@ -1,4 +1,3 @@
-
 class SortedArray:
   #Method for calculating the median index of an array
   def MedianSearch(self, start_index, end_index):
