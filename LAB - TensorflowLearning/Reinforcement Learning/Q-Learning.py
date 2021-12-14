@@ -17,7 +17,7 @@ ACTIONS = env.action_space.n
 
 Q = np.zeros((STATES,ACTIONS))
 
-EPISODES = 15000 #How many times to run the enviroment from the beginning
+EPISODES = 1500 #How many times to run the enviroment from the beginning
 MAX_STEPS = 100 #Max number of steps allowed for each run of enviroment
 
 LEARNING_RATE = 0.81 #Learning rate
