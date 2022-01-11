@@ -59,6 +59,15 @@ class Heap:
     else:
       print(indent+"X")
 
+  def Search(self,node,key):
+    #If node is null or key is present at node just return the node
+    if node is None or node.data == key:
+        return node
+    #If the key value is higher than the node value, go to the right
+    if node.data > key:
+        return self.Search(node.right,key)
+    #Else go to the left
+    return self.Search(node.left,key)
     """
     Remove is mirrored of Insert, do at a later day
     """
@@ -72,7 +81,9 @@ heap.InsertNode(12)
 heap.InsertNode(23)
 heap.InsertNode(28)
 heap.InsertNode(19)
+heap.InsertNode(20)
 heap.WriteTree(heap.root)
+print(heap.Search(heap.root,20))
 # Root = null, Bottom = null
 # ()
 #
