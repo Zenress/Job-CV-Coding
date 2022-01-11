@@ -33,9 +33,7 @@ class Pointers:
     self.Quicksort(Left,Last,list)
 
 #mylist = [12,6,14,9,2,21,15,4,20,8,13,5,7,17,10,11,7,18,1,16,3,19,21] 
-mylist = [random.randrange(1,10,1) for i in range(10)]
+mylist = [random.randrange(1,1000,1) for i in range(128)]
 qs = Pointers(mylist)
 qs.Quicksort(qs.Left,qs.Right,mylist)
-qss = Pointers(mylist)
-mylist[2] = 5
-qss.Quicksort(qss.Left,qss.Right,mylist)
+print("Last print - " + str(mylist))

@@ -27,7 +27,7 @@ class HashTable:
     index = self.HashFunction(key)
     while self.itemList[index] != None and self.itemList[index].key != key:
       index = (index + 1) % self.listLength
-    self.itemList[index] = "William"
+    return self.itemList[index].key
 
   def HashFunction(self,key):
     #Convert each character in key to ascii, add together and divide by list items
@@ -79,6 +79,6 @@ for x in hashList.itemList:
   else:
     print(x)
 
-hashList.SearchHash("Mia")
+print(hashList.SearchHash("Mia"))
 
 
