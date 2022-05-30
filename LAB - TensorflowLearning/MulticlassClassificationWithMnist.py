@@ -44,9 +44,11 @@ def create_model(my_learning_rate):
   #Flattening layer that flattens the 2 dimensional 28x28 array into a 784 element array
   model.add(tf.keras.layers.Flatten(input_shape=(28,28)))
   #First hidden layer
-  model.add(tf.keras.layers.Dense(units=32, activation='relu'))
+  model.add(tf.keras.layers.Dense(units=256, activation='relu'))
+  #Second hidden layer
+  model.add(tf.keras.layers.Dense(units=128, activation='relu'))
   #Dropout regularization layer
-  model.add(tf.keras.layers.Dropout(rate=0.01))
+  model.add(tf.keras.layers.Dropout(rate=0.1))
   #Output layer
   model.add(tf.keras.layers.Dense(units=10, activation='softmax'))
   
@@ -67,7 +69,7 @@ def train_model(model, train_featurers, train_label, epochs, batch_size=None, va
   return epochs, hist
 
 #Hyperparemeters
-learning_rate = 0.03
+learning_rate = 0.003
 epochs = 50
 batch_size = 4000
 validation_split = 0.2
