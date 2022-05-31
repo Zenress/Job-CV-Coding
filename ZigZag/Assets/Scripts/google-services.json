@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "259434521641",
+    "firebase_url": "https://bisonballscoreboard.firebaseio.com",
+    "project_id": "bisonballscoreboard",
+    "storage_bucket": "bisonballscoreboard.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:259434521641:android:bc446be78c9c6033876838",
+        "android_client_info": {
+          "package_name": "com.DefaultCompany.ZigZag"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "259434521641-1d96e14nngut3cduu6crg931ptm9o6u7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDA-Ko7VYcVHn9DvoQmqd0D46pz4blnJQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "259434521641-1d96e14nngut3cduu6crg931ptm9o6u7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
