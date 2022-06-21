@@ -10,7 +10,7 @@ logging.getLogger('tensorflow').setLevel(logging.ERROR)
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from tensorflow.keras import layers
+from keras import layers
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 mpl.use('tkagg')

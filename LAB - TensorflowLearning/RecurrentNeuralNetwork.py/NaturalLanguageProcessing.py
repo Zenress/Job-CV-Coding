@@ -7,7 +7,8 @@ logging.getLogger().setLevel(logging.INFO)
 #Standard imports ^
 
 from keras.datasets import imdb
-from keras.preprocessing import sequence
+from keras_preprocessing import sequence
+from keras import preprocessing
 import tensorflow as tf
 import numpy as np
 import keras
