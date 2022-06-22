@@ -1,7 +1,0 @@
-{
-  "python.testing.pytestArgs": [
-    "LAB - TensorflowLearning"
-  ],
-  "python.testing.unittestEnabled": false,
-  "python.testing.pytestEnabled": true
-}

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<QCARConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="qcar_config.xsd">
-  <Tracking>
-    <ImageTarget name="adachiandshimamura" size="0.140000 0.199547" />
-    <ImageTarget name="aspitlogo" size="0.140000 0.186667" />
-    <ImageTarget name="193306624_178607344178662_5227790761561710498_n" size="0.120000 0.160000" />
-    <ImageTarget name="195681390_784620205583379_1338202872796252477_n" size="0.290000 0.902415" />
-  </Tracking>
-</QCARConfig>
