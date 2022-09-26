@@ -19,7 +19,7 @@ label_encoder = preprocessing.LabelEncoder()
 #Making column names for the dataset so it's easier to seperate different parts of the dataset
 column_names = ["sepal length","sepal width","petal length","petal width","class"]
 #Reading the dataset with no headers and the column names i made above as the column names
-df = pd.read_csv("Irises ToyProject/irisdata.csv", header=None, names=column_names)
+df = pd.read_csv("./irisdata.csv", header=None, names=column_names)
 print(df)
 #Number encoding the class (last column) so that it's a numerical representation of the 3 classes.
 df["class"] = label_encoder.fit_transform(df["class"])
@@ -50,3 +50,5 @@ model.compile(optimizer='adam',
 #Training the model and then afterwards evaluating if it's trained correctly
 model.fit(train_x, train_labels, epochs=50)
 test_loss, test_acc = model.evaluate(test_x,  test_labels, verbose=2)
+
+model.save_weights("tensorflowmodel")
